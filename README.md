@@ -1,34 +1,38 @@
 # WindScope — Wind Power Forecast Evaluation
 
-WindScope is a full-stack web application for evaluating wind power generation forecasts against actual generation data for January 2026. It retrieves data from the Elexon BMRS API, applies a defined forecast-selection methodology, calculates evaluation metrics, and presents the results through an interactive dashboard.
+WindScope is a full-stack web application designed to evaluate wind power generation forecasts against actual generation data for January 2026. It retrieves data from the Elexon BMRS API, applies a defined forecast-selection methodology, calculates evaluation metrics, and presents the results through an interactive dashboard.
 
 ## Live Application
 
-- **Frontend Dashboard:** https://windscope-xi.vercel.app/
-- **Backend API:** https://windscope-backend.onrender.com/
-- **January Evaluation API:** https://windscope-backend.onrender.com/api/january-evaluation
-- **Health Check:** https://windscope-backend.onrender.com/api/health
+**Live Dashboard:** https://windscope-xi.vercel.app/
+
+## Overview
+
+WindScope helps evaluate forecast accuracy by comparing hourly wind power forecasts with actual wind generation. The application includes forecast selection based on publication timestamps, statistical error metrics, data completeness checks, and forecast-selection audit diagnostics.
 
 ## Key Features
 
-- Full-stack application using React and Flask.
-- Actual wind generation and wind forecast data retrieved from the Elexon BMRS API.
-- January 2026 hourly forecast evaluation.
-- Forecast selection based on a defined publication-time cutoff.
-- Mean Absolute Error (MAE), Root Mean Squared Error (RMSE), and forecast bias calculations.
-- Data completeness diagnostics and forecast-selection audit.
-- Interactive dashboard with charts and evaluation metrics.
-- Docker-based local development setup.
-- Separate frontend and backend deployments.
+- Interactive wind power forecast evaluation dashboard.
+- Actual wind generation and forecast data processing.
+- January 2026 hourly evaluation.
+- Forecast selection using a defined publication-time cutoff.
+- MAE, RMSE, and forecast bias calculations.
+- Actual-data completeness diagnostics.
+- Forecast-selection audit.
+- REST API powered by Flask.
+- Responsive frontend built with React and Vite.
+- Docker and Docker Compose support.
+- Separate frontend and backend deployment.
 
 ## Technology Stack
 
 ### Frontend
 - React
 - Vite
+- JavaScript
 - Recharts
 - Lucide React
-- JavaScript and CSS
+- CSS
 
 ### Backend
 - Python
@@ -40,11 +44,14 @@ WindScope is a full-stack web application for evaluating wind power generation f
 
 ### Data Source
 - Elexon BMRS API
+- FUELHH — actual generation data
+- WINDFOR — wind generation forecast data
 
 ### Deployment and Development
-- Vercel — frontend hosting
-- Render — backend hosting
-- Docker and Docker Compose
+- Vercel
+- Render
+- Docker
+- Docker Compose
 - Git and GitHub
 
 ## Repository Structure
@@ -65,34 +72,26 @@ q7mx2k9v/
 └── README.md
 ```
 
-The frontend and backend are deployed separately. The React application communicates with the Flask API through the `VITE_API_URL` environment variable.
-
 ## Data Sources
 
-WindScope uses the following Elexon BMRS datasets:
+The application uses the Elexon BMRS API to retrieve wind generation data.
 
-- **FUELHH:** Actual half-hourly generation data, filtered for wind generation.
-- **WINDFOR:** Wind generation forecast data, including publication timestamps and target periods.
+- **FUELHH:** Actual half-hourly generation records, filtered for wind generation.
+- **WINDFOR:** Wind generation forecast records, including publication timestamps and target periods.
 
-Data is retrieved from the Elexon BMRS API:
-
-https://data.elexon.co.uk/bmrs/api/v1
-
-The evaluation covers the period from 1 January 2026 through 31 January 2026.
+The evaluation period covers **1 January 2026 through 31 January 2026**.
 
 ## Evaluation Methodology
 
 ### 1. Actual Generation
 
-Actual wind generation is collected at half-hourly intervals.
-
-The two half-hourly actual generation values within each hour are averaged to produce an hourly actual generation value.
+Actual wind generation is collected at half-hourly intervals. The two half-hourly values within each hour are averaged to calculate hourly actual generation.
 
 ### 2. Forecast Selection
 
-For each evaluation hour, the forecast selection cutoff is defined as **12:00 noon UK local time on the previous calendar day**.
+For each evaluation hour, the forecast cutoff is defined as **12:00 noon UK local time on the previous calendar day**.
 
-Only forecasts published on or before the applicable cutoff are eligible for selection. Among the eligible forecasts returned by the API, the latest publication is selected for that target hour.
+Only forecasts published on or before the applicable cutoff are eligible. Among the eligible forecast records returned by the API, the latest publication is selected for the target hour.
 
 ### 3. Hourly Evaluation
 
@@ -102,21 +101,18 @@ An hour is evaluated only when both required half-hourly actual intervals and an
 
 ### 4. Evaluation Metrics
 
-**Mean Absolute Error (MAE)**
+**Mean Absolute Error (MAE)**  
+Measures the average absolute difference between forecast and actual generation.
 
-The average absolute difference between forecast and actual generation.
+**Root Mean Squared Error (RMSE)**  
+Measures the square root of the average squared difference between forecast and actual generation.
 
-**Root Mean Squared Error (RMSE)**
-
-The square root of the average squared difference between forecast and actual generation.
-
-**Forecast Bias**
-
-The average difference between forecast and actual generation. A positive bias indicates that forecasts are higher than actual generation on average.
+**Forecast Bias**  
+Measures the average difference between forecast and actual generation. A positive bias indicates that forecasts are higher than actual generation on average.
 
 ## Evaluation Results
 
-The current backend evaluation returns the following results for January 2026:
+The current evaluation results for January 2026 are:
 
 | Metric | Result |
 |---|---:|
@@ -146,19 +142,17 @@ The current backend evaluation returns the following results for January 2026:
 | Latest-selection mismatch hours | 0 |
 | Latest-selection audit | Passed |
 
-The audit checks forecast selection against the eligible forecast records returned by the API. It does not independently establish that the upstream API returned every historical publication.
+The audit validates forecast selection against the eligible forecast records returned by the API. It does not independently establish that the upstream API returned every historical publication.
 
 ## Running Locally
 
 ### Prerequisites
 
-Install the following:
-
 - Python 3.12 or a compatible Python version
 - Node.js and npm
 - Docker Desktop (optional, for containerized execution)
 
-### Option 1: Run with Docker Compose
+### Option 1: Docker Compose
 
 From the repository root, run:
 
@@ -166,11 +160,11 @@ From the repository root, run:
 docker compose up --build
 ```
 
-Once both services are running, open:
+When the containers are running, open:
 
 - **Frontend:** http://localhost:5173
 - **Backend health check:** http://localhost:5000/api/health
-- **January evaluation API:** http://localhost:5000/api/january-evaluation
+- **Evaluation data:** http://localhost:5000/api/january-evaluation
 
 Keep the Docker Compose terminal running while using the application.
 
@@ -180,7 +174,7 @@ To stop the containers, press `Ctrl+C` in the terminal running Docker Compose.
 
 Open a terminal in the `backend` directory.
 
-Install the dependencies:
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
@@ -192,11 +186,7 @@ Start the Flask development server:
 flask --app app run --host=0.0.0.0 --port=5000
 ```
 
-The backend will be available at:
-
-```text
-http://127.0.0.1:5000
-```
+The backend will run locally on port `5000`.
 
 ### Option 3: Run the Frontend Separately
 
@@ -214,72 +204,46 @@ Start the Vite development server:
 npm run dev
 ```
 
-Open the local URL displayed by Vite, normally:
+Open the local URL displayed by Vite, normally `http://localhost:5173`.
 
-```text
-http://localhost:5173
-```
-
-For local development, the frontend falls back to the local evaluation API when `VITE_API_URL` is not configured.
-
-## API Endpoints
-
-| Endpoint | Purpose |
-|---|---|
-| `/` | Backend root endpoint |
-| `/api/health` | Health check |
-| `/api/january-evaluation` | January 2026 evaluation results, metrics, hourly records, and diagnostics |
-
-The evaluation endpoint returns JSON data for use by the dashboard.
+For local development, the frontend uses the local evaluation API when the `VITE_API_URL` environment variable is not configured.
 
 ## Environment Configuration
 
 The frontend supports the following environment variable:
 
-| Variable | Description |
+| Variable | Purpose |
 |---|---|
-| `VITE_API_URL` | Full URL of the January evaluation API |
+| `VITE_API_URL` | Specifies the evaluation API URL used by the frontend |
 
-For the deployed frontend, the value is:
+For deployment, the variable is configured in the frontend hosting environment. The backend URL is intentionally not listed in this public README.
 
-```text
-https://windscope-backend.onrender.com/api/january-evaluation
-```
-
-For local development, the frontend defaults to:
-
-```text
-http://127.0.0.1:5000/api/january-evaluation
-```
-
-## Deployment
+## Deployment Architecture
 
 The application is deployed as two services:
 
-- **Frontend:** Vercel
-- **Backend:** Render
+- **Frontend:** Hosted on Vercel.
+- **Backend:** Hosted on Render.
 
-The Vercel project uses the `frontend` directory as its root and the Vite build output directory `dist`.
+The frontend is built using Vite, with the `frontend` directory as its project root and `dist` as the build output directory.
 
-The Render backend uses the Dockerfile in the `backend` directory.
-
-The frontend's `VITE_API_URL` environment variable points to the deployed Render evaluation endpoint.
+The backend uses Flask and is packaged using Docker. The frontend communicates with the backend through the configured API URL.
 
 ## Limitations and Assumptions
 
 - The evaluation period is January 2026.
-- Hourly actual generation is calculated as the mean of two half-hourly actual intervals.
-- Forecast eligibility is determined using the previous calendar day's 12:00 noon UK local-time cutoff.
-- Forecast-selection audit results apply to the eligible records returned by the upstream API.
-- The Render free service may take additional time to respond after a period of inactivity.
+- Hourly actual generation is calculated as the average of two half-hourly actual intervals.
+- Forecast eligibility uses the previous calendar day's 12:00 noon UK local-time cutoff.
+- Forecast-selection audit results apply to the eligible records returned by the API.
+- The backend hosting service may take additional time to respond after a period of inactivity.
 
 ## Future Improvements
 
 - Add automated backend tests.
-- Improve dashboard loading and error states.
-- Optimize frontend JavaScript bundle size through code splitting.
+- Improve loading and error states.
+- Optimize frontend bundle size through code splitting.
 - Add further evaluation periods and forecast comparisons.
-- Expand diagnostics and data-quality reporting.
+- Expand data-quality diagnostics.
 
 ## License
 
